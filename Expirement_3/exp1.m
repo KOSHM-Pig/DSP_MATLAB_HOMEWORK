@@ -116,60 +116,77 @@ xlabel('f/Hz'); ylabel('幅度'); title('高通分离后的频谱'); grid on; xl
 [n_hp_cheb, Wn_hp_cheb] = cheb1ord(Fp_hp/(Fs/2), Fs_hp/(Fs/2), Rp, Rs);
 [b_hp_cheb, a_hp_cheb] = cheby1(n_hp_cheb, Rp, Wn_hp_cheb, 'high');
 
-[H_lp_butt, w] = freqz(b_lp_butt, a_lp_butt, NFFT, Fs);
-H_lp_cheb = freqz(b_lp_cheb, a_lp_cheb, NFFT, Fs);
-H_bp_butt = freqz(b_bp_butt, a_bp_butt, NFFT, Fs);
-H_bp_cheb = freqz(b_bp_cheb, a_bp_cheb, NFFT, Fs);
-H_hp_butt = freqz(b_hp_butt, a_hp_butt, NFFT, Fs);
-H_hp_cheb = freqz(b_hp_cheb, a_hp_cheb, NFFT, Fs);
+[H_lp_butt, w] = freqz(b_lp_butt, a_lp_butt, NFFT);
+H_lp_cheb = freqz(b_lp_cheb, a_lp_cheb, NFFT);
+H_bp_butt = freqz(b_bp_butt, a_bp_butt, NFFT);
+H_bp_cheb = freqz(b_bp_cheb, a_bp_cheb, NFFT);
+H_hp_butt = freqz(b_hp_butt, a_hp_butt, NFFT);
+H_hp_cheb = freqz(b_hp_cheb, a_hp_cheb, NFFT);
 
-L_lp_butt = -20*log10(abs(H_lp_butt) + eps);
-L_lp_cheb = -20*log10(abs(H_lp_cheb) + eps);
-L_bp_butt = -20*log10(abs(H_bp_butt) + eps);
-L_bp_cheb = -20*log10(abs(H_bp_cheb) + eps);
-L_hp_butt = -20*log10(abs(H_hp_butt) + eps);
-L_hp_cheb = -20*log10(abs(H_hp_cheb) + eps);
+wpi = w / pi;
+f_resp = wpi * (Fs/2);
+
+Mag_lp_butt = 20*log10(abs(H_lp_butt) + eps);
+Mag_lp_cheb = 20*log10(abs(H_lp_cheb) + eps);
+Mag_bp_butt = 20*log10(abs(H_bp_butt) + eps);
+Mag_bp_cheb = 20*log10(abs(H_bp_cheb) + eps);
+Mag_hp_butt = 20*log10(abs(H_hp_butt) + eps);
+Mag_hp_cheb = 20*log10(abs(H_hp_cheb) + eps);
 
 figure;
-subplot(3, 1, 1);
-plot(w, L_lp_butt, 'LineWidth', 1); hold on;
-plot(w, L_lp_cheb, 'LineWidth', 1); hold off;
-grid on; xlim([0, Fs/2]); ylim([0, 100]);
-xlabel('f/Hz'); ylabel('损耗/dB'); title('低通滤波器损耗函数对比'); legend('butter', 'cheby1');
+plot(wpi, Mag_lp_butt, 'LineWidth', 1); hold on;
+plot(wpi, Mag_lp_cheb, 'LineWidth', 1); hold off;
+grid on; xlim([0, 1]); ylim([-80, 5]);
+xlabel('\omega/\pi'); ylabel('幅度(dB)'); title('低通滤波器损耗函数曲线'); legend('butter', 'cheby1');
 
-subplot(3, 1, 2);
-plot(w, L_bp_butt, 'LineWidth', 1); hold on;
-plot(w, L_bp_cheb, 'LineWidth', 1); hold off;
-grid on; xlim([0, Fs/2]); ylim([0, 100]);
-xlabel('f/Hz'); ylabel('损耗/dB'); title('带通滤波器损耗函数对比'); legend('butter', 'cheby1');
+figure;
+plot(wpi, Mag_bp_butt, 'LineWidth', 1); hold on;
+plot(wpi, Mag_bp_cheb, 'LineWidth', 1); hold off;
+grid on; xlim([0, 1]); ylim([-80, 5]);
+xlabel('\omega/\pi'); ylabel('幅度(dB)'); title('带通滤波器损耗函数曲线'); legend('butter', 'cheby1');
 
-subplot(3, 1, 3);
-plot(w, L_hp_butt, 'LineWidth', 1); hold on;
-plot(w, L_hp_cheb, 'LineWidth', 1); hold off;
-grid on; xlim([0, Fs/2]); ylim([0, 100]);
-xlabel('f/Hz'); ylabel('损耗/dB'); title('高通滤波器损耗函数对比'); legend('butter', 'cheby1');
+figure;
+plot(wpi, Mag_hp_butt, 'LineWidth', 1); hold on;
+plot(wpi, Mag_hp_cheb, 'LineWidth', 1); hold off;
+grid on; xlim([0, 1]); ylim([-80, 5]);
+xlabel('\omega/\pi'); ylabel('幅度(dB)'); title('高通滤波器损耗函数曲线'); legend('butter', 'cheby1');
 
-idx_lp_pass = (w <= Fp_lp);
-idx_lp_stop = (w >= Fs_lp);
+idx_lp_pass = (f_resp <= Fp_lp);
+idx_lp_stop = (f_resp >= Fs_lp);
 
-idx_bp_pass = (w >= Fp1_bp) & (w <= Fp2_bp);
-idx_bp_stop = (w <= Fs1_bp) | (w >= Fs2_bp);
+idx_bp_pass = (f_resp >= Fp1_bp) & (f_resp <= Fp2_bp);
+idx_bp_stop = (f_resp <= Fs1_bp) | (f_resp >= Fs2_bp);
 
-idx_hp_pass = (w >= Fp_hp);
-idx_hp_stop = (w <= Fs_hp);
+idx_hp_pass = (f_resp >= Fp_hp);
+idx_hp_stop = (f_resp <= Fs_hp);
 
 disp('butter/cheby1 设计的滤波器阶数对比:');
 disp(['低通:  butter=', num2str(n_lp_butt), '  cheby1=', num2str(n_lp_cheb)]);
 disp(['带通:  butter=', num2str(n_bp_butt), '  cheby1=', num2str(n_bp_cheb)]);
 disp(['高通:  butter=', num2str(n_hp_butt), '  cheby1=', num2str(n_hp_cheb)]);
 
-disp('损耗指标验证(单位:dB, 越大表示衰减越强):');
-disp(['低通 butter:  通带最大损耗=', num2str(max(L_lp_butt(idx_lp_pass))), '  阻带最小损耗=', num2str(min(L_lp_butt(idx_lp_stop)))]);
-disp(['低通 cheby1:  通带最大损耗=', num2str(max(L_lp_cheb(idx_lp_pass))), '  阻带最小损耗=', num2str(min(L_lp_cheb(idx_lp_stop)))]);
-disp(['带通 butter:  通带最大损耗=', num2str(max(L_bp_butt(idx_bp_pass))), '  阻带最小损耗=', num2str(min(L_bp_butt(idx_bp_stop)))]);
-disp(['带通 cheby1:  通带最大损耗=', num2str(max(L_bp_cheb(idx_bp_pass))), '  阻带最小损耗=', num2str(min(L_bp_cheb(idx_bp_stop)))]);
-disp(['高通 butter:  通带最大损耗=', num2str(max(L_hp_butt(idx_hp_pass))), '  阻带最小损耗=', num2str(min(L_hp_butt(idx_hp_stop)))]);
-disp(['高通 cheby1:  通带最大损耗=', num2str(max(L_hp_cheb(idx_hp_pass))), '  阻带最小损耗=', num2str(min(L_hp_cheb(idx_hp_stop)))]);
+Ap_lp_butt = -min(Mag_lp_butt(idx_lp_pass));
+Ap_lp_cheb = -min(Mag_lp_cheb(idx_lp_pass));
+As_lp_butt = -max(Mag_lp_butt(idx_lp_stop));
+As_lp_cheb = -max(Mag_lp_cheb(idx_lp_stop));
+
+Ap_bp_butt = -min(Mag_bp_butt(idx_bp_pass));
+Ap_bp_cheb = -min(Mag_bp_cheb(idx_bp_pass));
+As_bp_butt = -max(Mag_bp_butt(idx_bp_stop));
+As_bp_cheb = -max(Mag_bp_cheb(idx_bp_stop));
+
+Ap_hp_butt = -min(Mag_hp_butt(idx_hp_pass));
+Ap_hp_cheb = -min(Mag_hp_cheb(idx_hp_pass));
+As_hp_butt = -max(Mag_hp_butt(idx_hp_stop));
+As_hp_cheb = -max(Mag_hp_cheb(idx_hp_stop));
+
+disp('指标验证(单位:dB):');
+disp(['低通 butter:  通带最大衰减=', num2str(Ap_lp_butt), '  阻带最小衰减=', num2str(As_lp_butt)]);
+disp(['低通 cheby1:  通带最大衰减=', num2str(Ap_lp_cheb), '  阻带最小衰减=', num2str(As_lp_cheb)]);
+disp(['带通 butter:  通带最大衰减=', num2str(Ap_bp_butt), '  阻带最小衰减=', num2str(As_bp_butt)]);
+disp(['带通 cheby1:  通带最大衰减=', num2str(Ap_bp_cheb), '  阻带最小衰减=', num2str(As_bp_cheb)]);
+disp(['高通 butter:  通带最大衰减=', num2str(Ap_hp_butt), '  阻带最小衰减=', num2str(As_hp_butt)]);
+disp(['高通 cheby1:  通带最大衰减=', num2str(Ap_hp_cheb), '  阻带最小衰减=', num2str(As_hp_cheb)]);
 
 y1n = filter(b_lp_cheb, a_lp_cheb, s);
 y2n = filter(b_bp_cheb, a_bp_cheb, s);
