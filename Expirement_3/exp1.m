@@ -134,18 +134,19 @@ Mag_hp_butt = 20*log10(abs(H_hp_butt) + eps);
 Mag_hp_cheb = 20*log10(abs(H_hp_cheb) + eps);
 
 figure;
+subplot(3, 1, 1);
 plot(wpi, Mag_lp_butt, 'LineWidth', 1); hold on;
 plot(wpi, Mag_lp_cheb, 'LineWidth', 1); hold off;
 grid on; xlim([0, 1]); ylim([-80, 5]);
 xlabel('\omega/\pi'); ylabel('幅度(dB)'); title('低通滤波器损耗函数曲线'); legend('butter', 'cheby1');
 
-figure;
+subplot(3, 1, 2);
 plot(wpi, Mag_bp_butt, 'LineWidth', 1); hold on;
 plot(wpi, Mag_bp_cheb, 'LineWidth', 1); hold off;
 grid on; xlim([0, 1]); ylim([-80, 5]);
 xlabel('\omega/\pi'); ylabel('幅度(dB)'); title('带通滤波器损耗函数曲线'); legend('butter', 'cheby1');
 
-figure;
+subplot(3, 1, 3);
 plot(wpi, Mag_hp_butt, 'LineWidth', 1); hold on;
 plot(wpi, Mag_hp_cheb, 'LineWidth', 1); hold off;
 grid on; xlim([0, 1]); ylim([-80, 5]);
